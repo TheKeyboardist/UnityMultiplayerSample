@@ -18,8 +18,8 @@ public class NetworkClient : MonoBehaviour
     {
         m_Driver = NetworkDriver.Create();
         m_Connection = default(NetworkConnection);
-        //var endpoint = NetworkEndPoint.Parse(serverIP,serverPort);
-        var endpoint = NetworkEndPoint.LoopbackIpv4;
+        var endpoint = NetworkEndPoint.Parse(serverIP,serverPort);
+        //var endpoint = NetworkEndPoint.LoopbackIpv4;
         m_Connection = m_Driver.Connect(endpoint);
     }
     
@@ -33,10 +33,10 @@ public class NetworkClient : MonoBehaviour
     void OnConnect(){
         Debug.Log("We are now connected to the server");
 
-        //// Example to send a handshake message:
-        // HandshakeMsg m = new HandshakeMsg();
-        // m.player.id = m_Connection.InternalId.ToString();
-        // SendToServer(JsonUtility.ToJson(m));
+        // Example to send a handshake message:
+         HandshakeMsg m = new HandshakeMsg();
+         m.player.id = m_Connection.InternalId.ToString();
+         SendToServer(JsonUtility.ToJson(m));
     }
 
     void OnData(DataStreamReader stream){
