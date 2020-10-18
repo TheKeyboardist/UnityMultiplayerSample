@@ -7,7 +7,7 @@ public class HTTPClient : MonoBehaviour
 {
     // Start is called before the first frame update
     void Start() {
-        StartCoroutine(GetDateTime());
+        StartCoroutine(GetDateTime()); 
         StartCoroutine(GetUnityTest());
         StartCoroutine(UnityPOST());
     }

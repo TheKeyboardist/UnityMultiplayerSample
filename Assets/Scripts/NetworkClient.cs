@@ -18,7 +18,8 @@ public class NetworkClient : MonoBehaviour
     {
         m_Driver = NetworkDriver.Create();
         m_Connection = default(NetworkConnection);
-        var endpoint = NetworkEndPoint.Parse(serverIP,serverPort);
+        //var endpoint = NetworkEndPoint.Parse(serverIP,serverPort);
+        var endpoint = NetworkEndPoint.LoopbackIpv4;
         m_Connection = m_Driver.Connect(endpoint);
     }
     
