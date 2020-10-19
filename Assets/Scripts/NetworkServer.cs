@@ -5,6 +5,7 @@ using Unity.Networking.Transport;
 using NetworkMessages;
 using System;
 using System.Text;
+using System.Collections;
 
 public class NetworkServer : MonoBehaviour
 {
@@ -31,14 +32,24 @@ public class NetworkServer : MonoBehaviour
 
     }
 
+
     IEnumerator SendHandShakeToAllClient()
     {
-        while(true)
+        while (true)
         {
+            for (int i = 0; i < m_Connections.Length; i++)
+            {
+                if (!m_Connections[i].IsCreated)
+                    continue;
 
+                //example to send a handshake message
+                HandshakeMsg m = new HandshakeMsg();
+                m.player.id = m_Connections[i].InternalId.ToString();
+                SendToClient(JsonUtility.ToJson(m), m_Connections[i]);
+            }
+            yield return new WaitForSeconds(2);
         }
     }
-
 
 
 
@@ -60,9 +71,9 @@ public class NetworkServer : MonoBehaviour
         Debug.Log("Accepted a connection");
 
         //// Example to send a handshake message:
-         HandshakeMsg m = new HandshakeMsg();
-         m.player.id = c.InternalId.ToString();
-         SendToClient(JsonUtility.ToJson(m),c);        
+       //  HandshakeMsg m = new HandshakeMsg();
+        // m.player.id = c.InternalId.ToString();
+       //    SendToClient(JsonUtility.ToJson(m),c);        
     }
 
     void OnData(DataStreamReader stream, int i){
@@ -90,7 +101,8 @@ public class NetworkServer : MonoBehaviour
         }
     }
 
-    void OnDisconnect(int i){
+    void OnDisconnect(int i)
+    {
         Debug.Log("Client disconnected from server");
         m_Connections[i] = default(NetworkConnection);
     }
