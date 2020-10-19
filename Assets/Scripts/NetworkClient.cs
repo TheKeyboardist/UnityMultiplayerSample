@@ -5,6 +5,7 @@ using NetworkMessages;
 using NetworkObjects;
 using System;
 using System.Text;
+using System.Collections;
 
 public class NetworkClient : MonoBehaviour
 {
@@ -12,8 +13,9 @@ public class NetworkClient : MonoBehaviour
     public NetworkConnection m_Connection;
     public string serverIP;
     public ushort serverPort;
+    public NetworkObject player;
 
-    
+
     void Start ()
     {
         m_Driver = NetworkDriver.Create();
@@ -21,11 +23,30 @@ public class NetworkClient : MonoBehaviour
         var endpoint = NetworkEndPoint.Parse(serverIP,serverPort);
         //var endpoint = NetworkEndPoint.LoopbackIpv4;
         m_Connection = m_Driver.Connect(endpoint);
+        NetworkObjects.NetworkPlayer player;
+        StartCoroutine(SendRepeatedHandshake());
+        
+    }
+
+    IEnumerator SendRepeatedHandshake()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(2);
+            
+            HandshakeMsg m = new HandshakeMsg();
+            m.player.id = m_Connection.InternalId.ToString();
+            
+            SendToServer(JsonUtility.ToJson(m));
+            Debug.Log("Sending handshake from client " + m.player.id);
+        }
     }
 
 
 
-    void SendToServer(string message){
+
+    void SendToServer(string message)
+    {
         var writer = m_Driver.BeginSend(m_Connection);
         NativeArray<byte> bytes = new NativeArray<byte>(Encoding.ASCII.GetBytes(message),Allocator.Temp);
         writer.WriteBytes(bytes);
