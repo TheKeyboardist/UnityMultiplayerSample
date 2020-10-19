@@ -22,7 +22,9 @@ public class NetworkClient : MonoBehaviour
         //var endpoint = NetworkEndPoint.LoopbackIpv4;
         m_Connection = m_Driver.Connect(endpoint);
     }
-    
+
+
+
     void SendToServer(string message){
         var writer = m_Driver.BeginSend(m_Connection);
         NativeArray<byte> bytes = new NativeArray<byte>(Encoding.ASCII.GetBytes(message),Allocator.Temp);

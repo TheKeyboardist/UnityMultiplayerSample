@@ -9,8 +9,12 @@ using System.Text;
 public class NetworkServer : MonoBehaviour
 {
     public NetworkDriver m_Driver;
+
     public ushort serverPort;
+     
     private NativeList<NetworkConnection> m_Connections;
+
+
 
     void Start ()
     {
@@ -23,7 +27,21 @@ public class NetworkServer : MonoBehaviour
             m_Driver.Listen();
 
         m_Connections = new NativeList<NetworkConnection>(16, Allocator.Persistent);
+        StartCoroutine(SendHandShakeToAllClient());
+
     }
+
+    IEnumerator SendHandShakeToAllClient()
+    {
+        while(true)
+        {
+
+        }
+    }
+
+
+
+
 
     void SendToClient(string message, NetworkConnection c){
         var writer = m_Driver.BeginSend(NetworkPipeline.Null, c);

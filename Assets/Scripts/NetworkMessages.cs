@@ -4,7 +4,8 @@ using UnityEngine;
 
 namespace NetworkMessages
 {
-    public enum Commands{
+    public enum Commands
+    {
         PLAYER_UPDATE,
         SERVER_UPDATE,
         HANDSHAKE,
@@ -12,39 +13,49 @@ namespace NetworkMessages
     }
 
     [System.Serializable]
-    public class NetworkHeader{
+    public class NetworkHeader
+    {
         public Commands cmd;
     }
 
     [System.Serializable]
-    public class HandshakeMsg:NetworkHeader{
+    public class HandshakeMsg:NetworkHeader
+    {
         public NetworkObjects.NetworkPlayer player;
-        public HandshakeMsg(){      // Constructor
+        public HandshakeMsg()
+        {      // Constructor
             cmd = Commands.HANDSHAKE;
             player = new NetworkObjects.NetworkPlayer();
         }
     }
     
     [System.Serializable]
-    public class PlayerUpdateMsg:NetworkHeader{
+    public class PlayerUpdateMsg:NetworkHeader
+    {
         public NetworkObjects.NetworkPlayer player;
-        public PlayerUpdateMsg(){      // Constructor
+        public PlayerUpdateMsg()
+        {      // Constructor
             cmd = Commands.PLAYER_UPDATE;
             player = new NetworkObjects.NetworkPlayer();
         }
     };
 
-    public class PlayerInputMsg:NetworkHeader{
+    public class PlayerInputMsg:NetworkHeader
+    {
         public Input myInput;
-        public PlayerInputMsg(){
+
+        public PlayerInputMsg()
+        {
             cmd = Commands.PLAYER_INPUT;
             myInput = new Input();
         }
     }
     [System.Serializable]
-    public class  ServerUpdateMsg:NetworkHeader{
+    public class  ServerUpdateMsg:NetworkHeader
+    {
         public List<NetworkObjects.NetworkPlayer> players;
-        public ServerUpdateMsg(){      // Constructor
+        public ServerUpdateMsg()
+        {      // Constructor
             cmd = Commands.SERVER_UPDATE;
             players = new List<NetworkObjects.NetworkPlayer>();
         }
@@ -54,7 +65,8 @@ namespace NetworkMessages
 namespace NetworkObjects
 {
     [System.Serializable]
-    public class NetworkObject{
+    public class NetworkObject
+    {
         public string id;
     }
     [System.Serializable]
@@ -62,8 +74,10 @@ namespace NetworkObjects
         public Color cubeColor;
         public Vector3 cubPos;
 
-        public NetworkPlayer(){
+        public NetworkPlayer()
+        {
             cubeColor = new Color();
+            
         }
     }
 }
