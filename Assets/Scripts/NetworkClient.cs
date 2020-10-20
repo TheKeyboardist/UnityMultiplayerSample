@@ -13,8 +13,9 @@ public class NetworkClient : MonoBehaviour
     public NetworkConnection m_Connection;
     public string serverIP;
     public ushort serverPort;
-    public NetworkObject player;
-
+    public NetworkObjects.NetworkPlayer player;
+    public GameObject cubePrefab;
+   // public GameObject playerPrefab;
 
     void Start ()
     {
@@ -23,9 +24,9 @@ public class NetworkClient : MonoBehaviour
         var endpoint = NetworkEndPoint.Parse(serverIP,serverPort);
         //var endpoint = NetworkEndPoint.LoopbackIpv4;
         m_Connection = m_Driver.Connect(endpoint);
-        NetworkObjects.NetworkPlayer player;
+        player.body = Instantiate(cubePrefab, new Vector3(0,0,0), Quaternion.identity);
         StartCoroutine(SendRepeatedHandshake());
-        
+        StartCoroutine(SendRepeatedClientUpdate());
     }
 
     IEnumerator SendRepeatedHandshake()
@@ -38,10 +39,24 @@ public class NetworkClient : MonoBehaviour
             m.player.id = m_Connection.InternalId.ToString();
             
             SendToServer(JsonUtility.ToJson(m));
-            Debug.Log("Sending handshake from client " + m.player.id);
+            //Debug.Log("Sending handshake from client" + m.player.id);
         }
     }
 
+    IEnumerator SendRepeatedClientUpdate()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(1);
+
+            PlayerUpdateMsg m = new PlayerUpdateMsg();
+            m.player.id = m_Connection.InternalId.ToString();
+            m.player.body = player.body;
+            SendToServer(JsonUtility.ToJson(m));
+            
+            Debug.Log(player.body.transform.position);
+        }
+    }
 
 
 
@@ -103,6 +118,7 @@ public class NetworkClient : MonoBehaviour
     }   
     void Update()
     {
+    
         m_Driver.ScheduleUpdate().Complete();
 
         if (!m_Connection.IsCreated)

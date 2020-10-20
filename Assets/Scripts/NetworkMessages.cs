@@ -33,11 +33,13 @@ namespace NetworkMessages
     public class PlayerUpdateMsg:NetworkHeader
     {
         public NetworkObjects.NetworkPlayer player;
+        
         public PlayerUpdateMsg()
         {      // Constructor
             cmd = Commands.PLAYER_UPDATE;
             player = new NetworkObjects.NetworkPlayer();
         }
+
     };
 
     public class PlayerInputMsg:NetworkHeader
@@ -70,10 +72,11 @@ namespace NetworkObjects
         public string id;
     }
     [System.Serializable]
-    public class NetworkPlayer : NetworkObject{
-        public Color cubeColor;
-        public Vector3 cubPos;
-
+    public class NetworkPlayer : NetworkObject
+    {
+        public Color cubeColor; 
+        //public Vector3 cubPos;
+        public GameObject body;
         public NetworkPlayer()
         {
             cubeColor = new Color();

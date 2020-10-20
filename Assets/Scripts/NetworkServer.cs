@@ -51,7 +51,23 @@ public class NetworkServer : MonoBehaviour
         }
     }
 
+    IEnumerator SendPlayerPositionToAllClient()
+    {
+        while (true)
+        {
+            for (int i = 0; i < m_Connections.Length; i++)
+            {
+                if (!m_Connections[i].IsCreated)
+                    continue;
 
+                ServerUpdateMsg m = new ServerUpdateMsg();
+                //m.player.id = m_Connections[i].InternalId.ToString();
+                
+                SendToClient(JsonUtility.ToJson(m), m_Connections[i]);
+            }
+            yield return new WaitForSeconds(2);
+        }
+    }
 
 
     void SendToClient(string message, NetworkConnection c){
@@ -66,7 +82,8 @@ public class NetworkServer : MonoBehaviour
         m_Connections.Dispose();
     }
 
-    void OnConnect(NetworkConnection c){
+    void OnConnect(NetworkConnection c)
+    {
         m_Connections.Add(c);
         Debug.Log("Accepted a connection");
 
@@ -90,6 +107,9 @@ public class NetworkServer : MonoBehaviour
             case Commands.PLAYER_UPDATE:
             PlayerUpdateMsg puMsg = JsonUtility.FromJson<PlayerUpdateMsg>(recMsg);
             Debug.Log("Player update message received!");
+
+                
+
             break;
             case Commands.SERVER_UPDATE:
             ServerUpdateMsg suMsg = JsonUtility.FromJson<ServerUpdateMsg>(recMsg);
