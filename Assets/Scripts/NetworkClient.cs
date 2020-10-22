@@ -11,6 +11,7 @@ public class NetworkClient : MonoBehaviour
 {
     public NetworkDriver m_Driver;
     public NetworkConnection m_Connection;
+    private NativeList<NetworkConnection> m_Connections;
     public string serverIP;
     public ushort serverPort;
     public NetworkObjects.NetworkPlayer player;
@@ -26,7 +27,7 @@ public class NetworkClient : MonoBehaviour
         m_Connection = m_Driver.Connect(endpoint);
         player.body = Instantiate(cubePrefab, new Vector3(0,0,0), Quaternion.identity);
         StartCoroutine(SendRepeatedHandshake());
-        StartCoroutine(SendRepeatedClientUpdate());
+        //StartCoroutine(SendRepeatedClientUpdate());
     }
 
     IEnumerator SendRepeatedHandshake()
@@ -36,10 +37,9 @@ public class NetworkClient : MonoBehaviour
             yield return new WaitForSeconds(2);
             
             HandshakeMsg m = new HandshakeMsg();
-            m.player.id = m_Connection.InternalId.ToString();
-            
+            m.player.id = player.id;
             SendToServer(JsonUtility.ToJson(m));
-            //Debug.Log("Sending handshake from client" + m.player.id);
+            Debug.Log("Client: " + m.player.id + " sending a handshake");
         }
     }
 
@@ -50,7 +50,7 @@ public class NetworkClient : MonoBehaviour
             yield return new WaitForSeconds(1);
 
             PlayerUpdateMsg m = new PlayerUpdateMsg();
-            m.player.id = m_Connection.InternalId.ToString();
+            m.player.id = m_Connection.InternalId;
             m.player.body = player.body;
             SendToServer(JsonUtility.ToJson(m));
             
@@ -71,13 +71,14 @@ public class NetworkClient : MonoBehaviour
     void OnConnect(){
         Debug.Log("We are now connected to the server");
 
-        // Example to send a handshake message:
+       
          HandshakeMsg m = new HandshakeMsg();
-         m.player.id = m_Connection.InternalId.ToString();
+         m.player.id = player.id;
          SendToServer(JsonUtility.ToJson(m));
     }
 
-    void OnData(DataStreamReader stream){
+    void OnData(DataStreamReader stream)
+    {
         NativeArray<byte> bytes = new NativeArray<byte>(stream.Length,Allocator.Temp);
         stream.ReadBytes(bytes);
         string recMsg = Encoding.ASCII.GetString(bytes.ToArray());
@@ -95,6 +96,11 @@ public class NetworkClient : MonoBehaviour
             case Commands.SERVER_UPDATE:
             ServerUpdateMsg suMsg = JsonUtility.FromJson<ServerUpdateMsg>(recMsg);
             Debug.Log("Server update message received!");
+            break;
+            case Commands.ID_UPDATE:
+            IDUpdateMsg idMsg = JsonUtility.FromJson<IDUpdateMsg>(recMsg);
+            player.id = idMsg.id;
+            Debug.Log("Client: Server returned me my new id: " + player.id.ToString());
             break;
             default:
             Debug.Log("Unrecognized message received!");

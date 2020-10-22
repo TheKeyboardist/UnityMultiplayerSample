@@ -14,7 +14,7 @@ public class NetworkServer : MonoBehaviour
     public ushort serverPort;
      
     private NativeList<NetworkConnection> m_Connections;
-
+    private NativeList<Vector3> m_listofPlayerPos;
 
 
     void Start ()
@@ -44,7 +44,7 @@ public class NetworkServer : MonoBehaviour
 
                 //example to send a handshake message
                 HandshakeMsg m = new HandshakeMsg();
-                m.player.id = m_Connections[i].InternalId.ToString();
+                m.player.id = m_Connections[i].InternalId;
                 SendToClient(JsonUtility.ToJson(m), m_Connections[i]);
             }
             yield return new WaitForSeconds(2);
@@ -70,7 +70,8 @@ public class NetworkServer : MonoBehaviour
     }
 
 
-    void SendToClient(string message, NetworkConnection c){
+    void SendToClient(string message, NetworkConnection c)
+    {
         var writer = m_Driver.BeginSend(NetworkPipeline.Null, c);
         NativeArray<byte> bytes = new NativeArray<byte>(Encoding.ASCII.GetBytes(message),Allocator.Temp);
         writer.WriteBytes(bytes);
@@ -86,11 +87,10 @@ public class NetworkServer : MonoBehaviour
     {
         m_Connections.Add(c);
         Debug.Log("Accepted a connection");
-
-        //// Example to send a handshake message:
-       //  HandshakeMsg m = new HandshakeMsg();
-        // m.player.id = c.InternalId.ToString();
-       //    SendToClient(JsonUtility.ToJson(m),c);        
+        IDUpdateMsg m = new IDUpdateMsg();
+        m.id = c.InternalId;
+        SendToClient(JsonUtility.ToJson(m), c);
+        Debug.Log("Server: Hello, client this your id: " + c.InternalId.ToString());
     }
 
     void OnData(DataStreamReader stream, int i){
@@ -102,14 +102,14 @@ public class NetworkServer : MonoBehaviour
         switch(header.cmd){
             case Commands.HANDSHAKE:
             HandshakeMsg hsMsg = JsonUtility.FromJson<HandshakeMsg>(recMsg);
-            Debug.Log("Handshake message received!");
+                Debug.Log("Server: Hello, player " + hsMsg.player.id.ToString());    
+               //Debug.Log("Handshake message received on Server!");
+                
+
             break;
             case Commands.PLAYER_UPDATE:
             PlayerUpdateMsg puMsg = JsonUtility.FromJson<PlayerUpdateMsg>(recMsg);
             Debug.Log("Player update message received!");
-
-                
-
             break;
             case Commands.SERVER_UPDATE:
             ServerUpdateMsg suMsg = JsonUtility.FromJson<ServerUpdateMsg>(recMsg);

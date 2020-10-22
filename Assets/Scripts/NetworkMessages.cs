@@ -9,7 +9,8 @@ namespace NetworkMessages
         PLAYER_UPDATE,
         SERVER_UPDATE,
         HANDSHAKE,
-        PLAYER_INPUT
+        PLAYER_INPUT,
+        ID_UPDATE
     }
 
     [System.Serializable]
@@ -62,6 +63,17 @@ namespace NetworkMessages
             players = new List<NetworkObjects.NetworkPlayer>();
         }
     }
+    [System.Serializable]
+    public class IDUpdateMsg: NetworkHeader
+    {
+        public int id;
+        public IDUpdateMsg()
+        {
+            cmd = Commands.ID_UPDATE;
+        }
+
+    }
+
 } 
 
 namespace NetworkObjects
@@ -69,7 +81,7 @@ namespace NetworkObjects
     [System.Serializable]
     public class NetworkObject
     {
-        public string id;
+        public int id;
     }
     [System.Serializable]
     public class NetworkPlayer : NetworkObject
@@ -80,7 +92,7 @@ namespace NetworkObjects
         public NetworkPlayer()
         {
             cubeColor = new Color();
-            
+            id = 0;
         }
     }
 }
