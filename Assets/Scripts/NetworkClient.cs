@@ -6,28 +6,32 @@ using NetworkObjects;
 using System;
 using System.Text;
 using System.Collections;
-
+using System.Collections.Generic;
 public class NetworkClient : MonoBehaviour
 {
     public NetworkDriver m_Driver;
     public NetworkConnection m_Connection;
     private NativeList<NetworkConnection> m_Connections;
+    public List<NetworkObjects.NetworkPlayer> m_players;
     public string serverIP;
     public ushort serverPort;
     public NetworkObjects.NetworkPlayer player;
     public GameObject cubePrefab;
-   // public GameObject playerPrefab;
 
     void Start ()
     {
+        //var endpoint = NetworkEndPoint.LoopbackIpv4;
+     
         m_Driver = NetworkDriver.Create();
         m_Connection = default(NetworkConnection);
         var endpoint = NetworkEndPoint.Parse(serverIP,serverPort);
-        //var endpoint = NetworkEndPoint.LoopbackIpv4;
+        
         m_Connection = m_Driver.Connect(endpoint);
+        m_players = new List<NetworkObjects.NetworkPlayer>(4);
         player.body = Instantiate(cubePrefab, new Vector3(0,0,0), Quaternion.identity);
+        m_players[0] = player;
         StartCoroutine(SendRepeatedHandshake());
-        //StartCoroutine(SendRepeatedClientUpdate());
+        StartCoroutine(SendRepeatedClientPositionUpdate());
     }
 
     IEnumerator SendRepeatedHandshake()
@@ -35,30 +39,46 @@ public class NetworkClient : MonoBehaviour
         while (true)
         {
             yield return new WaitForSeconds(2);
-            
             HandshakeMsg m = new HandshakeMsg();
             m.player.id = player.id;
             SendToServer(JsonUtility.ToJson(m));
-            Debug.Log("Client: " + m.player.id + " sending a handshake");
+            Debug.Log("(Client: " + m.player.id.ToString() + ") Sending a handshake");
         }
     }
 
-    IEnumerator SendRepeatedClientUpdate()
+    IEnumerator SendRepeatedClientPositionUpdate()
     {
         while (true)
         {
-            yield return new WaitForSeconds(1);
+            //yield return new WaitForSeconds(1);
 
             PlayerUpdateMsg m = new PlayerUpdateMsg();
             m.player.id = m_Connection.InternalId;
-            m.player.body = player.body;
+            m.player.body.transform.position = player.body.transform.position;
             SendToServer(JsonUtility.ToJson(m));
-            
-            Debug.Log(player.body.transform.position);
+            Debug.Log("(Client " + player.id.ToString() + ") " + player.body.transform.position);
         }
     }
 
 
+    IEnumerator InstantiateNewPlayer()
+    {
+        while (true)
+        {
+            for (int i = 0; i < m_players.Count; i++)
+            {
+                if(i  == player.id)
+                {
+
+                }
+                else if (!m_players[i].body)
+                {
+                    
+                    m_players[i].body = Instantiate(cubePrefab, new Vector3(0,0,0), Quaternion.identity);
+                }
+            }
+        }
+    }
 
     void SendToServer(string message)
     {
@@ -68,7 +88,8 @@ public class NetworkClient : MonoBehaviour
         m_Driver.EndSend(writer);
     }
 
-    void OnConnect(){
+    void OnConnect()
+    {
         Debug.Log("We are now connected to the server");
 
        
@@ -95,6 +116,11 @@ public class NetworkClient : MonoBehaviour
             break;
             case Commands.SERVER_UPDATE:
             ServerUpdateMsg suMsg = JsonUtility.FromJson<ServerUpdateMsg>(recMsg);
+                m_players = suMsg.players;
+                for (int i = 0; i < m_players.Count; i++)
+                {
+                    Debug.Log("(player " + m_players[i].id + ") " + "position: " + m_players[i].body.transform.position);
+                }
             Debug.Log("Server update message received!");
             break;
             case Commands.ID_UPDATE:
@@ -108,7 +134,8 @@ public class NetworkClient : MonoBehaviour
         }
     }
 
-    void Disconnect(){
+    void Disconnect()
+    {
         m_Connection.Disconnect(m_Driver);
         m_Connection = default(NetworkConnection);
     }

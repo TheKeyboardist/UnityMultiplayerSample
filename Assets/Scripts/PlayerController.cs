@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using NetworkMessages;
-
 public class PlayerController : MonoBehaviour
 {
 
@@ -19,13 +18,11 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-       // if (gameObject.name != networkClient.myAddress)
-       // {
-      //      return;
-      //  }
+        //PlayerUpdateMsg m = new PlayerUpdateMsg();
         if (Input.GetKey(KeyCode.W))
         {
             transform.Translate(Vector3.forward * Time.deltaTime * playerSpeed);
+      
         }
 
         if (Input.GetKey(KeyCode.S))
@@ -42,5 +39,6 @@ public class PlayerController : MonoBehaviour
         {
             transform.Translate(-Vector3.left * Time.deltaTime * playerSpeed);
         }
+        //m.player.body.transform.position = transform.position;
     }
 }

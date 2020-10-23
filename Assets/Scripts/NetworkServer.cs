@@ -6,6 +6,7 @@ using NetworkMessages;
 using System;
 using System.Text;
 using System.Collections;
+using System.Collections.Generic;
 
 public class NetworkServer : MonoBehaviour
 {
@@ -15,6 +16,7 @@ public class NetworkServer : MonoBehaviour
      
     private NativeList<NetworkConnection> m_Connections;
     private NativeList<Vector3> m_listofPlayerPos;
+    private List<NetworkObjects.NetworkPlayer> m_listOfPlayers;
 
 
     void Start ()
@@ -23,11 +25,12 @@ public class NetworkServer : MonoBehaviour
         var endpoint = NetworkEndPoint.AnyIpv4;
         endpoint.Port = serverPort;
         if (m_Driver.Bind(endpoint) != 0)
-            Debug.Log("Failed to bind to port " + serverPort);
+            Debug.Log("Failed to bind to port " + serverPort.ToString());
         else
             m_Driver.Listen();
 
         m_Connections = new NativeList<NetworkConnection>(16, Allocator.Persistent);
+        m_listOfPlayers = new List<NetworkObjects.NetworkPlayer>();
         StartCoroutine(SendHandShakeToAllClient());
 
     }
@@ -102,14 +105,16 @@ public class NetworkServer : MonoBehaviour
         switch(header.cmd){
             case Commands.HANDSHAKE:
             HandshakeMsg hsMsg = JsonUtility.FromJson<HandshakeMsg>(recMsg);
-                Debug.Log("Server: Hello, player " + hsMsg.player.id.ToString());    
-               //Debug.Log("Handshake message received on Server!");
-                
-
+                Debug.Log("Server: Hello, player " + hsMsg.player.id.ToString()); 
             break;
             case Commands.PLAYER_UPDATE:
             PlayerUpdateMsg puMsg = JsonUtility.FromJson<PlayerUpdateMsg>(recMsg);
-            Debug.Log("Player update message received!");
+
+            m_listOfPlayers[i].body.transform.position = puMsg.player.body.transform.position;
+                ServerUpdateMsg serUpMsg = new ServerUpdateMsg();
+                serUpMsg.players = m_listOfPlayers;
+                SendToClient(JsonUtility.ToJson(serUpMsg), m_Connections[i]);
+                Debug.Log("Player update message received!");
             break;
             case Commands.SERVER_UPDATE:
             ServerUpdateMsg suMsg = JsonUtility.FromJson<ServerUpdateMsg>(recMsg);
@@ -125,6 +130,7 @@ public class NetworkServer : MonoBehaviour
     {
         Debug.Log("Client disconnected from server");
         m_Connections[i] = default(NetworkConnection);
+        m_listOfPlayers[i] = null;
     }
 
     void Update ()

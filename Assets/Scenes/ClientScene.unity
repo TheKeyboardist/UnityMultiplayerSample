@@ -309,6 +309,7 @@ GameObject:
   m_Component:
   - component: {fileID: 775130657}
   - component: {fileID: 775130658}
+  - component: {fileID: 775130656}
   m_Layer: 0
   m_Name: NetworkMan Client
   m_TagString: Untagged
@@ -316,6 +317,25 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &775130656
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 775130655}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 076a918cb382740d19425ee20afc244b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_players:
+  - id: 0
+    cubeColor: {r: 0, g: 0, b: 0, a: 0}
+    body: {fileID: 0}
+  - id: 0
+    cubeColor: {r: 0, g: 0, b: 0, a: 0}
+    body: {fileID: 0}
 --- !u!4 &775130657
 Transform:
   m_ObjectHideFlags: 0
@@ -342,10 +362,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79e313398508b4053942f94821862d42, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_players: []
   serverIP: 18.217.212.10
   serverPort: 12345
   player:
-    id: 
+    id: 0
     cubeColor: {r: 0, g: 0, b: 0, a: 0}
     body: {fileID: 1476952689118532135, guid: fe8080b3d8c3a4d48b973b3d4484ada1, type: 3}
   cubePrefab: {fileID: 1476952689118532135, guid: fe8080b3d8c3a4d48b973b3d4484ada1,

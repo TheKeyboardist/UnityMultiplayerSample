@@ -1,6 +1,12 @@
-﻿using System.Collections;
+﻿using UnityEngine;
+using UnityEngine.Assertions;
+using Unity.Collections;
+using Unity.Networking.Transport;
+using NetworkMessages;
+using System;
+using System.Text;
+using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace NetworkMessages
 {
@@ -57,10 +63,12 @@ namespace NetworkMessages
     public class  ServerUpdateMsg:NetworkHeader
     {
         public List<NetworkObjects.NetworkPlayer> players;
+        //public NativeList<NetworkConnection> m_TempConnections;
         public ServerUpdateMsg()
         {      // Constructor
             cmd = Commands.SERVER_UPDATE;
             players = new List<NetworkObjects.NetworkPlayer>();
+            //m_TempConnections = new NativeList<NetworkConnection>(16, Allocator.Persistent);
         }
     }
     [System.Serializable]
@@ -89,6 +97,7 @@ namespace NetworkObjects
         public Color cubeColor; 
         //public Vector3 cubPos;
         public GameObject body;
+        
         public NetworkPlayer()
         {
             cubeColor = new Color();
